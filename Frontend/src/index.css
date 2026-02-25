@@ -1,0 +1,76 @@
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 270 60% 30%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 270 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 30% 15%;
+
+    --primary: 270 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 30% 90%;
+    --secondary-foreground: 270 30% 15%;
+
+    --muted: 270 20% 92%;
+    --muted-foreground: 270 10% 45%;
+
+    --accent: 280 80% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 270 20% 85%;
+    --input: 270 20% 85%;
+    --ring: 270 70% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 270 60% 8%;
+    --foreground: 270 10% 95%;
+    --card: 270 40% 12%;
+    --card-foreground: 270 10% 95%;
+    --popover: 270 40% 12%;
+    --popover-foreground: 270 10% 95%;
+    --primary: 270 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 30% 18%;
+    --secondary-foreground: 270 10% 95%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 10% 65%;
+    --accent: 280 80% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 270 20% 22%;
+    --input: 270 20% 22%;
+    --ring: 270 70% 60%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
