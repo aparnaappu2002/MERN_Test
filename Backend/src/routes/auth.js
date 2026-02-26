@@ -1,6 +1,11 @@
 const express = require("express")
 const bcrypt=require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+
+
 const User = require('../models/userModel')
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -113,5 +118,78 @@ router.get("/dashboard", authMiddleware, async(req, res) => {
   const total = await User.countDocuments()
   res.json({users,total})
 });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = "uploads/kyc";
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${file.fieldname}_${req.user.id}_${Date.now()}${ext}`);
+  },
+});
+
+// ── File Filter ──
+const fileFilter = (req, file, cb) => {
+  const allowed = {
+    kycImage: ["image/png", "image/jpeg", "image/jpg"],
+    kycAudio: ["audio/webm", "audio/mp4", "audio/wav", "audio/mpeg"],
+  };
+  if (allowed[file.fieldname]?.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Invalid file type for ${file.fieldname}.`), false);
+  }
+};
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max
+});
+
+router.post("/kyc",authMiddleware,upload.fields([{ name: "kycImage", maxCount: 1 },
+    { name: "kycAudio", maxCount: 1 },
+]),async(req,res)=>{
+  try{
+
+    console.log("FILES:", req.files);   
+    console.log("BODY:", req.body);     
+
+    if(!req.files?.kycImage){
+      return res.status(400).json({message:"Kyc Image is required"})
+    }
+    if(!req.files?.kycAudio){
+      return res.status(400).json({message:"Kyc Audio is required"})
+    }
+    const user = await User.findByIdAndUpdate(req.user.id,{
+      kycImage:req.files.kycImage[0].path,
+      kycAudio:req.files.kycAudio[0].path,
+      kycStatus: "submitted",
+
+    },{new:true})
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.status(200).json({
+        message: "KYC submitted successfully.",
+        
+      });
+
+  }catch(error){
+    res.status(500).json({ error: error.message });
+
+  }
+})
+router.get("/kyc-status", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select(
+      "kycStatus kycImage kycAudio"
+    );
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 module.exports=router
