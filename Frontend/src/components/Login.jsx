@@ -65,7 +65,7 @@ const Login = () => {
         position: "top-right",
         autoClose: 2000,
       });
-      setTimeout(() => navigate("/dashboard"), 2000);
+      setTimeout(() => navigate("/kyc"), 2000);
     } catch (error) {
       toast.error(error.message || "Invalid email or password.", {
         position: "top-right",
