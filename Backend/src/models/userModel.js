@@ -9,7 +9,22 @@ const userSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true
-    }
+    },
+    kycImage:{
+        type:String,
+        default:null,
+    },
+    kycAudio:{
+        type:String,
+        default:null
+    },
+    kycStatus: {
+      type: String,
+      enum: ["pending", "submitted", "verified", "rejected"],
+      default: "pending",
+    },
+
+
 })
 
 module.exports = mongoose.model("User",userSchema)
