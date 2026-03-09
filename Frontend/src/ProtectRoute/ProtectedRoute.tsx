@@ -1,13 +1,17 @@
 import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const token = localStorage.getItem("token");
 
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

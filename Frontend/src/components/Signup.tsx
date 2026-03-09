@@ -1,23 +1,29 @@
-import React from "react";
-import { useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Eye, EyeOff, Lock } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRegisterMutation } from "../hooks/userCustomHooks";
 
-function Signup() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+interface FormErrors {
+  email?: string | null;
+  password?: string | null;
+  confirmPassword?: string | null;
+}
+
+const Signup = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+
   const navigate = useNavigate();
+  const registerMutation = useRegisterMutation();
 
-  const validate = () => {
-    const newErrors = {};
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {};
 
     if (!email) {
       newErrors.email = "Email is required.";
@@ -46,7 +52,7 @@ function Signup() {
     return newErrors;
   };
 
-  const handleBlur = (field) => {
+  const handleBlur = (field: keyof FormErrors) => {
     const validationErrors = validate();
     setErrors((prev) => ({
       ...prev,
@@ -54,35 +60,27 @@ function Signup() {
     }));
   };
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      toast.error("Please fix the errors before submitting.", { position: "top-right", autoClose: 3000 });
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
-    setIsLoading(true);
     try {
-      await axios.post("http://localhost:3000/users/register", { email, password });
-      toast.success("Account created successfully! 🎉", { position: "top-right", autoClose: 2000 });
+      const data = await registerMutation.mutateAsync({ email, password });
+      toast.success(data.message || "Account created successfully! 🎉");
       setTimeout(() => navigate("/"), 2000);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed. Please try again.", {
-        position: "top-right",
-        autoClose: 4000,
-      });
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast.error(error.message || "Signup failed. Please try again.");
     }
   };
 
   return (
     <div className="min-h-screen bg-purple-950 flex items-center justify-center p-4 relative overflow-hidden">
-
-      {/* React Toastify Container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -100,19 +98,18 @@ function Signup() {
         }}
       />
 
-      {/* Background decorative blobs */}
+      {/* Background blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-purple-700 rounded-full opacity-20 blur-3xl -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-600 rounded-full opacity-20 blur-3xl translate-y-1/2 -translate-x-1/2" />
       <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-fuchsia-700 rounded-full opacity-10 blur-3xl -translate-x-1/2 -translate-y-1/2" />
 
-      {/* Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="rounded-2xl p-[1px] bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-500 shadow-2xl shadow-purple-900/60">
+        <div className="rounded-2xl p-px bg-linear-to-br from-purple-500 via-violet-500 to-fuchsia-500 shadow-2xl shadow-purple-900/60">
           <div className="bg-purple-950 rounded-2xl px-8 py-10">
 
             {/* Icon */}
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-700/50">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-700/50">
                 <UserPlus className="w-7 h-7 text-white" />
               </div>
             </div>
@@ -135,13 +132,18 @@ function Signup() {
                     type="email"
                     placeholder="you@example.com"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: null })); }}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setEmail(e.target.value);
+                      setErrors((p) => ({ ...p, email: null }));
+                    }}
                     onBlur={() => handleBlur("email")}
                     className={`w-full bg-purple-900 border text-white placeholder-purple-500 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all
-                      ${errors.email ? "border-red-500 focus:ring-red-500" : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
+                      ${errors.email
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
                   />
                 </div>
-                {errors.email && <p className="text-xs text-red-400 flex items-center gap-1">⚠ {errors.email}</p>}
+                {errors.email && <p className="text-xs text-red-400">⚠ {errors.email}</p>}
               </div>
 
               {/* Password */}
@@ -153,10 +155,15 @@ function Signup() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: null })); }}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setPassword(e.target.value);
+                      setErrors((p) => ({ ...p, password: null }));
+                    }}
                     onBlur={() => handleBlur("password")}
                     className={`w-full bg-purple-900 border text-white placeholder-purple-500 rounded-xl pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2 transition-all
-                      ${errors.password ? "border-red-500 focus:ring-red-500" : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
+                      ${errors.password
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
                   />
                   <button
                     type="button"
@@ -166,7 +173,8 @@ function Signup() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-red-400 flex items-center gap-1">⚠ {errors.password}</p>}
+                {errors.password && <p className="text-xs text-red-400">⚠ {errors.password}</p>}
+
                 {/* Password strength hints */}
                 {password && !errors.password && (
                   <ul className="text-xs text-purple-400 space-y-0.5 mt-1">
@@ -195,10 +203,15 @@ function Signup() {
                     type={showConfirm ? "text" : "password"}
                     placeholder="••••••••"
                     value={confirmPassword}
-                    onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: null })); }}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setConfirmPassword(e.target.value);
+                      setErrors((p) => ({ ...p, confirmPassword: null }));
+                    }}
                     onBlur={() => handleBlur("confirmPassword")}
                     className={`w-full bg-purple-900 border text-white placeholder-purple-500 rounded-xl pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2 transition-all
-                      ${errors.confirmPassword ? "border-red-500 focus:ring-red-500" : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
+                      ${errors.confirmPassword
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-purple-700 focus:border-purple-400 focus:ring-purple-500"}`}
                   />
                   <button
                     type="button"
@@ -208,16 +221,18 @@ function Signup() {
                     {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.confirmPassword && <p className="text-xs text-red-400 flex items-center gap-1">⚠ {errors.confirmPassword}</p>}
+                {errors.confirmPassword && (
+                  <p className="text-xs text-red-400">⚠ {errors.confirmPassword}</p>
+                )}
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-purple-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={registerMutation.isPending}
+                className="w-full py-3 rounded-xl bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-purple-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {registerMutation.isPending ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -251,6 +266,6 @@ function Signup() {
       </div>
     </div>
   );
-}
+};
 
 export default Signup;
