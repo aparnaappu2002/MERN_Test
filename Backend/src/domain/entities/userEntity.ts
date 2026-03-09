@@ -5,5 +5,6 @@ export interface User {
   imageUrl?: string
   audioUrl?: string
   createdAt?: Date
-  updatedAt?: Date
+  updatedAt?: Date,
+  kycStatus?:string
 }

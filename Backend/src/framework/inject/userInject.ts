@@ -4,6 +4,11 @@ import { LoginUserUseCase } from "../../useCases/loginUseCase"
 import { UserRepository } from "../../adapters/repository/user/userRepository"
 import { UserAuthController } from "../../adapters/controllers/authenticationController"
 import { hashPassword } from "../service/hashPassword"
+import { SubmitKycUseCase } from "../../useCases/submitKycUseCase"
+import { UserKycController } from "../../adapters/controllers/userKycController"
+import { GetKycStatusUseCase } from "../../useCases/kycStatusUseCase"
+import { GetDashboardUseCase } from "../../useCases/getDashboardUseCase"
+import { UserDashboardController } from "../../adapters/controllers/userDashboardController"
 
 
 
@@ -19,3 +24,10 @@ export const injectedUserAuthController = new UserAuthController(
   loginUseCase,
   jwtService
 )
+
+const submitKycUseCase=new SubmitKycUseCase(userRepository)
+const getStatusKycUseCase=new GetKycStatusUseCase(userRepository)
+export const injectedUserKycController=new UserKycController(submitKycUseCase,getStatusKycUseCase)
+
+const getDashboardUseCase=new GetDashboardUseCase(userRepository)
+export const injectedDashboardController=new UserDashboardController(getDashboardUseCase)
