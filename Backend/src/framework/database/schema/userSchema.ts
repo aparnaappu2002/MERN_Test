@@ -24,7 +24,12 @@ export const userSchema = new Schema(
     audioUrl: {
       type: String,
       default: null
-    }
+    },
+    kycStatus: {
+      type: String,
+      enum: ["pending", "submitted", "verified", "rejected"],
+      default: "pending",
+    },
 
   },
   {
